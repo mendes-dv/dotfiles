@@ -1,0 +1,74 @@
+" Show a few lines of context around the cursor. Note that this makes the
+" text scroll if you mouse-click near the start or end of the window.
+set scrolloff=8
+" Do incremental searching.
+set incsearch
+" Plugins
+set NERDTree
+Plug 'easymotion/vim-easymotion'
+Plug 'tpope/vim-surround'
+" Mapping
+let mapleader = " "
+inoremap jj <Esc>
+inoremap kk <Esc>
+nnoremap <leader>wq :wq<CR>
+map <leader>F <Plug>(easymotion-s)
+map <leader>f <Plug>(easymotion-f)
+map <c-t> :NERDTree<CR>
+map Q gq
+"Refactoring""""""""""""""""""""""""""""""""""""""
+noremap <leader>re :action RenameElement<CR>
+
+"Run""""""""""""""""""""""""""""""""""""""
+noremap <leader>rr :action Run<CR>
+noremap <Space>sp   :action Stop<CR>
+noremap <Space>dd :action Debug<CR>
+
+"Debug""""""""""""""""""""""""""""""""""""""
+noremap <leader>bp :action ToggleLineBreakpoint<CR>
+
+"Window""""""""""""""""""""""""""""""""""""""
+noremap <leader><leader> :action HideAllWindows<CR>
+noremap <Space>AT   :action ActivateTODOToolWindow<CR>
+
+"Information""""""""""""""""""""""""""""""""""""""
+noremap <Space>ed :action ShowErrorDescription<CR>
+""""""""""""""""""""""""""""""""""""""Project""""""""""""""""""""""""""""""""""""""
+noremap <Space>cP :action CloseProject<CR>
+noremap <Space>CP :action CloseProject<CR>
+noremap <Space>oP :action OpenFile<CR>
+noremap <Space>OP :action OpenFile<CR>
+noremap <Space>nP :action NewProject<CR>
+noremap <Space>NP :action NewProject<CR>
+""""""""""""""""""""""""""""""""""""""Jump articles""""""""""""""""""""""""""""""""""""""
+noremap <Space>te :action SearchEverywhere<CR>
+noremap <Space>td mm`m:action GotoDeclaration<CR>
+nnoremap <Space>ts mm`m:action GotoSymbol<CR>
+noremap  <Space>tu  mm`m:action Toolkit.GotoService<CR>
+nnoremap <Space>ta mm`m:action GotoAction<CR>
+noremap <Space>tf mm`m:action GotoFile<CR>
+noremap <Space>tt mm`m:action GotoTest<CR>
+noremap <Space>tc mm`m:action GotoClass<CR>
+noremap <Space>tp mm`m:action FindInPath<CR>
+noremap <Space>ne mm`m:action GotoNextError<CR>
+noremap <Space>pe mm`m:action GotoPreviousError<CR>
+noremap <Space>gs mm`m:action GotoSuperMethod<CR>
+noremap <Space>gi mm`m:action GotoImplementation<CR>
+noremap <Space>g, mm`m:action JumpToLastChange<CR>
+noremap <Space>g; mm`m:action JumpToNextChange<CR>
+noremap <Space>rf :action RecentFiles<CR>
+noremap <Space>rF :action RecentChangedFiles<CR>
+noremap <Space>nw :action NextProjectWindow<CR>
+noremap <Space>pw :action PreviousProjectWindow<CR>
+"" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
+"" Map \r to the Reformat Code action
+"map \r <Action>(ReformatCode)
+
+"" Map <leader>d to start debug
+"map <leader>d <Action>(Debug)
+
+"" Map \b to toggle the breakpoint on the current line
+"map \b <Action>(ToggleLineBreakpoint)
+
+
+" Find more examples here: https://jb.gg/share-ideavimrc
