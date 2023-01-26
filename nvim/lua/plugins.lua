@@ -21,6 +21,8 @@ return require('packer').startup({
 
     -- Themes
     use { 'folke/tokyonight.nvim' }
+    use { 'catppuccin/nvim', as = 'catppuccin' }
+    use { 'rebelot/kanagawa.nvim' }
 
     -- Treesitter
     use { 'nvim-treesitter/nvim-treesitter', config = "require('plugins.treesitter')" }
@@ -76,12 +78,15 @@ return require('packer').startup({
     use { 'simrat39/rust-tools.nvim' }
     use { 'axelvc/template-string.nvim', config = function() require('template-string').setup() end }
     use { 'lvimuser/lsp-inlayhints.nvim', config = function() require('lsp-inlayhints').setup() end }
+    use { "OmniSharp/omnisharp-vim", config = function()
+      vim.g.OmniSharp_server_stdio_quickload = 1
+      vim.g.OmniSharp_server_use_net6 = 1
+    end, }
 
     -- General
     use { 'AndrewRadev/switch.vim' }
     use { 'AndrewRadev/splitjoin.vim' }
     use { 'numToStr/Comment.nvim', config = "require('plugins.comment')" }
-    use { 'LudoPinelli/comment-box.nvim' }
     use { 'akinsho/nvim-toggleterm.lua', branch = 'main', config = "require('plugins.toggleterm')" }
     use { 'tpope/vim-repeat' }
     use { 'tpope/vim-speeddating' }
@@ -117,6 +122,9 @@ return require('packer').startup({
     use { 'lukas-reineke/indent-blankline.nvim', config = "require('plugins.indent')" }
     use { 'NvChad/nvim-colorizer.lua', config = "require('plugins.colorizer')" }
     use { 'L3MON4D3/LuaSnip', requires = { 'rafamadriz/friendly-snippets' }, after = 'cmp_luasnip' }
+
+    -- New Shit
+    use { 'nvim-telescope/telescope-media-files.nvim' }
 
     -- Git
     use { 'lewis6991/gitsigns.nvim',
