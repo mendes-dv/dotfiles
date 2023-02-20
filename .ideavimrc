@@ -34,7 +34,10 @@ noremap <Space>dd :action Debug<CR>
 noremap <leader>bp :action ToggleLineBreakpoint<CR>
 
 "Window""""""""""""""""""""""""""""""""""""""
-noremap <leader><leader> :action HideAllWindows<CR>
+map <leader>q <Action>(CloseContent)
+map <leader>Q <Action>(CloseAllEditors)
+map <leader>x <Action>(CloseAllEditorsButActive)
+map <leader><leader> <Action>(HideAllWindows)
 noremap <Space>AT   :action ActivateTODOToolWindow<CR>
 nnoremap H gT
 nnoremap L gt
