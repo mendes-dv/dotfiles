@@ -5,14 +5,12 @@ set scrolloff=8
 set incsearch
 
 " Plugins
-Plug 'tpope/vim-surround'
 set NERDTree
 set easymotion
 set surround
 set multicursor
 set easymotion
 set ideajoin
-
 
 "EasyMotion ------------------------
 map <leader>F <Plug>(easymotion-s)
@@ -27,10 +25,10 @@ noremap <leader>re :action RenameElement<CR>
 
 "Run""""""""""""""""""""""""""""""""""""""
 noremap <leader>rr :action Run<CR>
-noremap <Space>sp   :action Stop<CR>
-noremap <Space>dd :action Debug<CR>
+noremap <Space>rs :action Stop<CR>
 
 "Debug""""""""""""""""""""""""""""""""""""""
+noremap <Space>rb :action Debug<CR>
 noremap <leader>bp :action ToggleLineBreakpoint<CR>
 
 "Window""""""""""""""""""""""""""""""""""""""
@@ -38,18 +36,25 @@ map <leader>q <Action>(CloseContent)
 map <leader>Q <Action>(CloseAllEditors)
 map <leader>x <Action>(CloseAllEditorsButActive)
 map <leader><leader> <Action>(HideAllWindows)
-noremap <Space>AT   :action ActivateTODOToolWindow<CR>
-nnoremap H gT
-nnoremap L gt
+noremap <leader>at :action ActivateTODOToolWindow<CR>
 xnoremap K :m'<-2<CR>gv'<CR>
 xnoremap J :m'>+1<CR>gv'<CR>
 nnoremap <C-d> <C-d>zz<CR>
 nnoremap <C-u> <C-u>zz<CR>
+nmap n nzzzv
+nmap N Nzzzv
 nnoremap <leader>nf :action NewFile<CR>
 nnoremap <leader>nd :action NewDir<CR>
 
+map / <Action>(Find)
 "Information""""""""""""""""""""""""""""""""""""""
-noremap <Space>ed :action ShowErrorDescription<CR>
+noremap <Space>, :action ShowErrorDescription<CR>
+""""""""""""""""""""""""""""""""""""""Navigation"""""""""""""""""""""""""""""""""""
+map <leader>fm <Action>(MainMenu)
+nnoremap H gT
+nnoremap L gt
+map <C-H> <C-W>h
+map <C-L> <C-W>l
 """"""""""""""""""""""""""""""""""""""Project""""""""""""""""""""""""""""""""""""""
 noremap <Space>cP :action CloseProject<CR>
 noremap <Space>CP :action CloseProject<CR>
@@ -86,7 +91,3 @@ map \r <Action>(ReformatCode)
 
 "" Map \b to toggle the breakpoint on the current line
 "map \b <Action>(ToggleLineBreakpoint)
-
-
-" Find more examples here: https://jb.gg/share-ideavimrc
-" Find more examples here: https://jb.gg/share-ideavimrc
