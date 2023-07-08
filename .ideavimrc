@@ -41,16 +41,17 @@ noremap <leader>bp :action ToggleLineBreakpoint<CR>
 
 "Window""""""""""""""""""""""""""""""""""""""
 noremap <leader><leader> :action HideAllWindows<CR>
-noremap <Space>AT   :action ActivateTODOToolWindow<CR>
+noremap <Space>AT :action ActivateTODOToolWindow<CR>
 nnoremap H gT
 nnoremap L gt
-xnoremap K :m '<-2<CR>gv==gv
-xnoremap J :m '>+1<CR>gv==gv
+vmap J :m '>+1<CR>gv=gv
+vmap K :m '<-2<CR>gv=gv
 nnoremap <C-d> <C-d>zz<CR>
 nnoremap <C-u> <C-u>zz<CR>
 nnoremap <leader>nf :action NewFile<CR>
 nnoremap <leader>nd :action NewDir<CR>
 map <leader>c <action>(CommentByLineComment)
+noremap <Space>td :action ActivateTODOToolWindow<CR>
 
 " Window splits
 map <leader>wv <Action>(SplitVertically)
@@ -69,7 +70,6 @@ noremap <Space>nP :action NewProject<CR>
 noremap <Space>NP :action NewProject<CR>
 """"""""""""""""""""""""""""""""""""""Jump articles""""""""""""""""""""""""""""""""""""""
 noremap <Space>te :action SearchEverywhere<CR>
-noremap <Space>td mm`m:action GotoDeclaration<CR>
 nnoremap <Space>ts mm`m:action GotoSymbol<CR>
 noremap  <Space>tu  mm`m:action Toolkit.GotoService<CR>
 nnoremap <Space>ta mm`m:action GotoAction<CR>
@@ -79,17 +79,20 @@ noremap <Space>tc mm`m:action GotoClass<CR>
 noremap <Space>tp mm`m:action FindInPath<CR>
 noremap <Space>ne mm`m:action GotoNextError<CR>
 noremap <Space>pe mm`m:action GotoPreviousError<CR>
-noremap <Space>gs mm`m:action GotoSuperMethod<CR>
-noremap <Space>gi mm`m:action GotoImplementation<CR>
+noremap gd mm`m:action GotoDeclaration<CR>
+noremap gs mm`m:action GotoSuperMethod<CR>
+noremap gi mm`m:action GotoImplementation<CR>
 noremap <Space>g, mm`m:action JumpToLastChange<CR>
 noremap <Space>g; mm`m:action JumpToNextChange<CR>
 noremap <Space>rf :action RecentFiles<CR>
 noremap <Space>rF :action RecentChangedFiles<CR>
 noremap <Space>nw :action NextProjectWindow<CR>
 noremap <Space>pw :action PreviousProjectWindow<CR>
-map \r <Action>(ReformatCode)
+noremap <Space>. :action ShowIntentionActions<CR>
+noremap <Space>sql :action ActivateDatabaseToolWindow<CR>
+map \r :action ReformatCode<CR>
 "" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
-"" Map \r to the Reformat Code action
+
 
 "" Map <leader>d to start debug
 "map <leader>d <Action>(Debug)
