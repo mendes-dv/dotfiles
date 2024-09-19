@@ -5,6 +5,7 @@ set noerrorbells
 
 " Do incremental searching.
 set incsearch
+set ignorecase
 
 " Plugins
 Plug 'tpope/vim-surround'
@@ -21,7 +22,7 @@ map <leader>F <Plug>(easymotion-s)
 map <leader>f <Plug>(easymotion-f)
 
 "NERDTree ------------------------
-map <c-e> :NERDTree<CR>
+map <C-e> :NERDTree<CR>
 nnoremap <leader>wq :wq<CR>
 
 " Folding
@@ -30,6 +31,9 @@ map <leader>zo :action ExpandAllRegions<CR>
 
 "Refactoring""""""""""""""""""""""""""""""""""""""
 noremap <leader>re :action RenameElement<CR>
+noremap <leader>rf :action RenameFile<CR>
+map <Leader>s   <Action>(FileStructurePopup)
+nmap <Leader>ff <Action>(ReformatCode)
 
 "Run""""""""""""""""""""""""""""""""""""""
 noremap <leader>rr :action Run<CR>
@@ -82,24 +86,11 @@ noremap <Space>pe mm`m:action GotoPreviousError<CR>
 noremap gd mm`m:action GotoDeclaration<CR>
 noremap gs mm`m:action GotoSuperMethod<CR>
 noremap gi mm`m:action GotoImplementation<CR>
-noremap <Space>g, mm`m:action JumpToLastChange<CR>
-noremap <Space>g; mm`m:action JumpToNextChange<CR>
-noremap <Space>rf :action RecentFiles<CR>
+noremap <Space>lc mm`m:action JumpToLastChange<CR>
+noremap <Space>nc mm`m:action JumpToNextChange<CR>
 noremap <Space>rF :action RecentChangedFiles<CR>
 noremap <Space>nw :action NextProjectWindow<CR>
 noremap <Space>pw :action PreviousProjectWindow<CR>
 noremap <Space>. :action ShowIntentionActions<CR>
 noremap <Space>sql :action ActivateDatabaseToolWindow<CR>
 map \r :action ReformatCode<CR>
-"" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
-
-
-"" Map <leader>d to start debug
-"map <leader>d <Action>(Debug)
-
-"" Map \b to toggle the breakpoint on the current line
-"map \b <Action>(ToggleLineBreakpoint)
-
-
-" Find more examples here: https://jb.gg/share-ideavimrc
-" Find more examples here: https://jb.gg/share-ideavimrc
