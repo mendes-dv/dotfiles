@@ -4,7 +4,6 @@ local function map(mode, lhs, rhs)
     vim.keymap.set(mode, lhs, rhs, { silent = true })
 end
 
-
 -- Save
 map("n", "<leader>w", "<CMD>update<CR>")
 
@@ -33,3 +32,15 @@ map("n", "<C-Left>", "<C-w><")
 map("n", "<C-Right>", "<C-w>>")
 map("n", "<C-Up>", "<C-w>+")
 map("n", "<C-Down>", "<C-w>-")
+
+-- copy to system clipboard
+map("v", "<leader>y", '"+y') 
+
+map({ "n", "v" }, "<C-a>", vim.lsp.buf.code_action, { desc = "Code Action" })
+
+map('n', '<leader>re', vim.lsp.buf.rename, {desc = 'Rename Symbol'})
+map('n', 'gd', vim.lsp.buf.definition, {desc = 'Goto Definition'})
+map('n', 'gi', vim.lsp.buf.implementation, {desc = 'Goto Definition'})
+map('n', '<leader>ca', vim.lsp.buf.code_action, {desc = 'Code Action'})
+map('n', 'K', vim.lsp.buf.hover, {desc = 'Hover Documentation'})
+map('n', '<leader>ff', vim.lsp.buf.format, {desc = 'Format Code'})

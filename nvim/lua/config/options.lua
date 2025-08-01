@@ -10,3 +10,7 @@ vim.opt.softtabstop = 2
 -- use number of spaces to insert a <Tab>
 vim.opt.expandtab = true
 vim.opt.conceallevel= 2
+
+vim.o.background = "dark"
+vim.o.clipboard = 'unnamedplus'
+vim.o.completeopt = 'menuone,noselect'
