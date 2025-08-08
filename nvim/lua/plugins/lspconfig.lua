@@ -1,79 +1,126 @@
 return {
-    "neovim/nvim-lspconfig",
-    event = { "BufReadPre", "BufNewFile" },
-    dependencies = {
-        "hrsh7th/cmp-nvim-lsp",
-        { "folke/neodev.nvim", opts = {} },
-    },
-    config = function()
-        local nvim_lsp = require("lspconfig")
-        local mason_lspconfig = require("mason-lspconfig")
+	"neovim/nvim-lspconfig",
+	event = { "BufReadPre", "BufNewFile" },
+	dependencies = {
+		"hrsh7th/cmp-nvim-lsp",
+		{ "williamboman/mason.nvim" },
+		{ "williamboman/mason-lspconfig.nvim" },
+		{ "folke/neodev.nvim",                opts = {} },
+	},
+	config = function()
+		local nvim_lsp = require("lspconfig")
+		local capabilities = require("cmp_nvim_lsp").default_capabilities()
+		require("neodev").setup({}) -- sets up lua_ls better
+		vim.api.nvim_create_autocmd("LspAttach", {
+			desc = "LSP actions",
+			callback = function(event)
+				local opts = { buffer = event.buf }
 
-        local protocol = require("vim.lsp.protocol")
+				vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>", opts)
+				vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", opts)
+				vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<cr>", opts)
+				vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", opts)
+				vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<cr>", opts)
+				vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<cr>", opts)
+				vim.keymap.set("n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<cr>", opts)
+				vim.keymap.set(
+					"n",
+					"<leader>vd",
+					"<cmd>lua vim.diagnostic.open_float()<cr>",
+					{ desc = "View Diagnostics" }
+				)
+				vim.keymap.set("n", "<leader>re", "<cmd>lua vim.lsp.buf.rename()<cr>", opts)
+				vim.keymap.set({ "n", "x" }, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<cr>",
+					opts)
+				vim.keymap.set("n", "<leader>.", "<cmd>lua vim.lsp.buf.code_action()<cr>", opts)
+			end,
+		})
 
-        local on_attach = function(client, bufnr)
-            -- format on save
-            if client.server_capabilities.documentFormattingProvider then
-                vim.api.nvim_create_autocmd("BufWritePre", {
-                    group = vim.api.nvim_create_augroup("Format", { clear = true }),
-                    buffer = bufnr,
-                    callback = function()
-                        vim.lsp.buf.format()
-                    end,
-                })
-            end
-        end
 
-        local capabilities = require("cmp_nvim_lsp").default_capabilities()
+		vim.lsp.config('basedpyright', {
+			settings = {
+				basedpyright = {
+					disableOrganizeImports = true,
+					analysis = {
+						typeCheckingMode = 'basic',
+						diagnosticMode = 'workspace',
+						autoSearchPath = true,
+					},
+				},
+			}
+		})
+		vim.lsp.config('ruff', {
+			init_options = {
+				settings = {
+					configurationPreference = 'filesystemFirst',
+					fixAll = true,
+					organizeImports = true,
+					lint = {
+						enable = true,
+						preview = true,
+					},
+					format = {
+						preview = true,
+					},
+				},
+			},
+		})
 
-        mason_lspconfig.setup_handlers({
-            function(server)
-                nvim_lsp[server].setup({
-                    capabilities = capabilities,
-                })
-            end,
-            ["tsserver"] = function()
-                nvim_lsp["tsserver"].setup({
-                    on_attach = on_attach,
-                    capabilities = capabilities,
-                })
-            end,
-            ["cssls"] = function()
-                nvim_lsp["cssls"].setup({
-                    on_attach = on_attach,
-                    capabilities = capabilities,
-                })
-            end,
-            ["tailwindcss"] = function()
-                nvim_lsp["tailwindcss"].setup({
-                    on_attach = on_attach,
-                    capabilities = capabilities,
-                })
-            end,
-            ["html"] = function()
-                nvim_lsp["html"].setup({
-                    on_attach = on_attach,
-                    capabilities = capabilities,
-                })
-            end,
-            ["jsonls"] = function()
-                nvim_lsp["jsonls"].setup({
-                    on_attach = on_attach,
-                    capabilities = capabilities,
-                })
-            end,
-            ["eslint"] = function()
-                nvim_lsp["eslint"].setup({
-                    on_attach = on_attach,
-                    capabilities = capabilities,
-                })
-            end,
-            ["pyright"] = function()
-                nvim_lsp["pyright"].setup({
-                    on_attach = on_attach,
-                    capabilities = capabilities,
-                })
-            end,
-        })
-    end,
+		vim.lsp.config('vtsls', {
+			root_dir = nvim_lsp.util.root_pattern(
+				".git",
+				"pnpm-workspace.yaml",
+				"pnpm-lock.yaml",
+				"yarn.lock",
+				"package-lock.json",
+				"bun.lockb"
+			),
+			typescript = {
+				tsserver = {
+					maxTsServerMemory = 12288,
+				},
+			},
+			experimental = {
+				completion = {
+					entriesLimit = 3,
+				},
+			},
+		})
+
+
+		-- Ensure LSP servers are installed
+		require("mason-lspconfig").setup({
+			ensure_installed = {
+				"lua_ls",
+				"ts_ls",
+				"eslint",
+				"vtsls",
+				"jsonls",
+				"html",
+				"cssls",
+				"gopls",
+				"basedpyright",
+			},
+			automatic_installation = true,
+			automatic_enable = true,
+		})
+
+		-- Setup handlers manually
+		local servers = {
+			"lua_ls",
+			"ts_ls",
+			"eslint",
+			"jsonls",
+			"html",
+			"cssls",
+			"gopls",
+			"roslyn",
+		}
+
+		for _, lsp in ipairs(servers) do
+			nvim_lsp[lsp].setup({
+				capabilities = capabilities,
+			})
+		end
+	end,
 }
