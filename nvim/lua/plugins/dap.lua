@@ -1,13 +1,13 @@
 local function rebuild_project(co, path)
 	local spinner = require("easy-dotnet.ui-modules.spinner").new()
-	spinner:start_spinner "Building"
+	spinner:start_spinner("Building")
 	vim.fn.jobstart(string.format("dotnet build %s", path), {
 		on_exit = function(_, return_code)
 			if return_code == 0 then
-				spinner:stop_spinner "Built successfully"
+				spinner:stop_spinner("Built successfully")
 			else
 				spinner:stop_spinner("Build failed with exit code " .. return_code, vim.log.levels.ERROR)
-				error "Build failed"
+				error("Build failed")
 			end
 			coroutine.resume(co)
 		end,
@@ -82,7 +82,7 @@ return {
 						render = {
 							max_type_length = nil,
 							max_value_lines = 100,
-						}
+						},
 					})
 					-- Auto open/close dapui
 					dap.listeners.after.event_initialized["dapui_config"] = function()
@@ -114,7 +114,7 @@ return {
 						virt_text_pos = "eol",
 						all_frames = false,
 						virt_lines = false,
-						virt_text_win_col = nil
+						virt_text_win_col = nil,
 					})
 				end,
 			},
@@ -185,8 +185,8 @@ return {
 							env = function()
 								local dll = ensure_dll()
 								if dll then
-									local vars = dotnet.get_environment_variables(
-									dll.project_name, dll.relative_project_path)
+									local vars =
+										dotnet.get_environment_variables(dll.project_name, dll.relative_project_path)
 									return vars or nil
 								end
 								return nil
@@ -198,8 +198,7 @@ return {
 									rebuild_project(co, dll.project_path)
 									return dll.relative_dll_path
 								end
-								return vim.fn.input('Path to dll: ',
-									vim.fn.getcwd() .. '/bin/Debug/', 'file')
+								return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
 							end,
 							cwd = function()
 								local dll = ensure_dll()
@@ -207,32 +206,56 @@ return {
 									return dll.relative_project_path
 								end
 								return vim.fn.getcwd()
-							end
+							end,
 						},
 						{
 							type = "coreclr",
 							name = "Test",
 							request = "attach",
 							processId = function()
-								local res = require("easy-dotnet").experimental
-								.start_debugging_test_project()
+								local res = require("easy-dotnet").experimental.start_debugging_test_project()
 								return res.process_id
-							end
-						}
+							end,
+						},
 					}
 				end
 
 				-- Always add manual configuration as fallback
 				table.insert(configs, {
 					type = "coreclr",
-					name = "Launch - Manual",
+					name = "Launch API (Swagger)",
 					request = "launch",
 					program = function()
-						return vim.fn.input('Path to dll: ', vim.fn.getcwd() .. '/bin/Debug/',
-							'file')
+						-- Build the project first
+						vim.fn.jobstart("dotnet build src/Api", { stdout_buffered = true })
+						return vim.fn.getcwd() .. "/src/Api/bin/Debug/net8.0/Api.dll"
+					end,
+					cwd = "${workspaceFolder}/src/Api",
+					env = {
+						ASPNETCORE_ENVIRONMENT = "Development",
+					},
+					args = { "--urls", "https://localhost:7073;http://localhost:7071" },
+					stopAtEntry = false,
+				})
+				table.insert(configs, {
+					type = "netcoredbg",
+					name = "launch - netcoredbg",
+					request = "launch",
+					program = function()
+						return vim.fn.input("DLL: ", vim.fn.getcwd() .. "/bin/Debug/net9.0/", "file")
 					end,
 					cwd = "${workspaceFolder}",
+					console = "integratedTerminal",
+				})
+				table.insert(configs, {
+					type = "coreclr",
+					name = "Launch API with Profile",
+					request = "launch",
+					program = "dotnet",
+					args = { "run", "--launch-profile", "Api" },
+					cwd = "${workspaceFolder}/src/Api",
 					stopAtEntry = false,
+					console = "integratedTerminal",
 				})
 
 				dap.configurations[value] = configs
@@ -240,7 +263,7 @@ return {
 
 			-- Reset debug_dll after each terminated session (only if easy-dotnet is available)
 			if has_easy_dotnet then
-				dap.listeners.before['event_terminated']['easy-dotnet'] = function()
+				dap.listeners.before["event_terminated"]["easy-dotnet"] = function()
 					debug_dll = nil
 				end
 			end
@@ -258,55 +281,163 @@ return {
 					type = "pwa-node",
 					request = "attach",
 					name = "Attach",
-					processId = require 'dap.utils'.pick_process,
+					processId = require("dap.utils").pick_process,
 					cwd = "${workspaceFolder}",
-				}
+				},
 			}
 			dap.configurations.typescript = dap.configurations.javascript
 
-			-- Python configuration
-			dap.adapters.python = function(cb, config)
-				if config.request == 'attach' then
-					local port = (config.connect or config).port
-					local host = (config.connect or config).host or '127.0.0.1'
-					cb({
-						type = 'server',
-						port = assert(port,
-							'`connect.port` is required for a python `attach` configuration'),
-						host = host,
-						options = {
-							source_filetype = 'python',
-						},
-					})
-				else
-					cb({
-						type = 'executable',
-						command = 'python',
-						args = { '-m', 'debugpy.adapter' },
-						options = {
-							source_filetype = 'python',
-						},
-					})
+			-- Python configuration with virtual environment support
+			local pythonPath = function()
+				local cwd = vim.loop.cwd()
+
+				-- First, check for virtual environment in current directory
+				if vim.fn.executable(cwd .. "/.venv/bin/python") == 1 then
+					return cwd .. "/.venv/bin/python"
 				end
+
+				-- Check for common virtual environment locations
+				local venv_paths = {
+					cwd .. "/venv/bin/python",
+					cwd .. "/.virtualenv/bin/python",
+					cwd .. "/env/bin/python",
+				}
+
+				for _, path in ipairs(venv_paths) do
+					if vim.fn.executable(path) == 1 then
+						return path
+					end
+				end
+
+				-- Try to find Python in PATH
+				local python_candidates = { "python3", "python", "python3.11", "python3.10", "python3.9" }
+				for _, python_cmd in ipairs(python_candidates) do
+					if vim.fn.executable(python_cmd) == 1 then
+						return python_cmd
+					end
+				end
+
+				-- Check common system Python locations
+				local system_paths = {
+					"/usr/bin/python3",
+					"/usr/local/bin/python3",
+					"/opt/homebrew/bin/python3", -- macOS with Homebrew
+					"/usr/bin/python",
+					"/usr/local/bin/python",
+				}
+
+				for _, path in ipairs(system_paths) do
+					if vim.fn.executable(path) == 1 then
+						return path
+					end
+				end
+
+				-- Last resort: return 'python3' and let the system handle it
+				return "python3"
 			end
-			dap.configurations.python = {
-				{
-					type = 'python',
-					request = 'launch',
-					name = "Launch file",
-					program = "${file}",
-					pythonPath = function()
-						local cwd = vim.fn.getcwd()
-						if vim.fn.executable(cwd .. '/venv/bin/python') == 1 then
-							return cwd .. '/venv/bin/python'
-						elseif vim.fn.executable(cwd .. '/.venv/bin/python') == 1 then
-							return cwd .. '/.venv/bin/python'
-						else
-							return '/usr/bin/python'
-						end
-					end,
-				},
-			}
+
+			local set_python_dap = function()
+				-- Check if dap-python is available and set it up first
+				local has_dap_python, dap_python = pcall(require, "dap-python")
+				if has_dap_python then
+					dap_python.setup() -- Setup defaults ready to be replaced
+				end
+
+				dap.configurations.python = {
+					{
+						type = "python",
+						request = "launch",
+						name = "Launch file",
+						program = "${file}",
+						pythonPath = pythonPath(),
+					},
+					{
+						type = "python",
+						request = "launch",
+						name = "Django Server",
+						program = vim.loop.cwd() .. "/manage.py",
+						args = { "runserver", "127.0.0.1:8000", "--noreload" },
+						pythonPath = pythonPath(),
+						django = true,
+						justMyCode = true,
+						console = "integratedTerminal",
+						cwd = vim.loop.cwd(),
+						env = function()
+							local env = {}
+							-- Copy current environment
+							for k, v in pairs(vim.fn.environ()) do
+								env[k] = v
+							end
+							-- Ensure Django settings are available
+							if not env.DJANGO_SETTINGS_MODULE then
+								-- Try to auto-detect Django settings module
+								local settings_files = vim.fn.glob(vim.loop.cwd() .. "/*/settings.py", true, true)
+								if #settings_files > 0 then
+									local settings_path = settings_files[1]
+									local project_name = settings_path:match(".*/(.+)/settings.py")
+									if project_name then
+										env.DJANGO_SETTINGS_MODULE = project_name .. ".settings"
+									end
+								end
+							end
+							return env
+						end,
+					},
+					{
+						type = "python",
+						request = "launch",
+						name = "Django Shell",
+						program = vim.loop.cwd() .. "/manage.py",
+						args = { "shell" },
+						pythonPath = pythonPath(),
+						console = "integratedTerminal",
+						cwd = vim.loop.cwd(),
+					},
+					{
+						type = "python",
+						request = "attach",
+						name = "Attach remote",
+						connect = function()
+							return {
+								host = "127.0.0.1",
+								port = 8000,
+							}
+						end,
+					},
+					{
+						type = "python",
+						request = "launch",
+						name = "Launch file with arguments",
+						program = "${file}",
+						args = function()
+							local args_string = vim.fn.input("Arguments: ")
+							return vim.split(args_string, " +")
+						end,
+						console = "integratedTerminal",
+						pythonPath = pythonPath(),
+						cwd = vim.loop.cwd(),
+					},
+				}
+
+				dap.adapters.python = {
+					type = "executable",
+					command = pythonPath(),
+					args = { "-m", "debugpy.adapter" },
+					options = {
+						source_filetype = "python",
+					},
+				}
+			end
+
+			-- Set up Python DAP
+			set_python_dap()
+
+			-- Update Python configuration when directory changes
+			vim.api.nvim_create_autocmd({ "DirChanged" }, {
+				callback = function()
+					set_python_dap()
+				end,
+			})
 
 			-- Enhanced keymaps with .NET specific shortcuts
 			local keymap = vim.keymap.set
@@ -314,7 +445,7 @@ return {
 			-- Core debugging keymaps
 			keymap("n", "<Leader>db", dap.toggle_breakpoint, { desc = "Debug: Toggle Breakpoint" })
 			keymap("n", "<Leader>dB", function()
-				dap.set_breakpoint(vim.fn.input('Breakpoint condition: '))
+				dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
 			end, { desc = "Debug: Set Conditional Breakpoint" })
 			keymap("n", "<Leader>dc", dap.continue, { desc = "Debug: Start/Continue" })
 			keymap("n", "<Leader>dC", dap.run_to_cursor, { desc = "Debug: Run to Cursor" })
@@ -336,7 +467,6 @@ return {
 			keymap("n", "<F10>", dap.step_over, { desc = "Step over" })
 			keymap("n", "<F11>", dap.step_into, { desc = "Step into" })
 			keymap("n", "<F12>", dap.step_out, { desc = "Step out" })
-			keymap("n", "<leader>b", dap.toggle_breakpoint, { desc = "Toggle breakpoint" })
 			keymap("n", "<leader>dO", dap.step_over, { desc = "Step over (alt)" })
 			keymap("n", "<leader>dj", dap.down, { desc = "Go down stack frame" })
 			keymap("n", "<leader>dk", dap.up, { desc = "Go up stack frame" })
@@ -353,35 +483,35 @@ return {
 			keymap("n", "<Leader>de", dapui.eval, { desc = "Debug: Evaluate expression" })
 
 			-- Signs for breakpoints
-			vim.fn.sign_define('DapBreakpoint', {
-				text = '🟥',
-				texthl = 'DapBreakpoint',
-				linehl = '',
-				numhl = ''
+			vim.fn.sign_define("DapBreakpoint", {
+				text = "🟥",
+				texthl = "DapBreakpoint",
+				linehl = "",
+				numhl = "",
 			})
-			vim.fn.sign_define('DapBreakpointCondition', {
-				text = '🟨',
-				texthl = 'DapBreakpointCondition',
-				linehl = '',
-				numhl = ''
+			vim.fn.sign_define("DapBreakpointCondition", {
+				text = "🟨",
+				texthl = "DapBreakpointCondition",
+				linehl = "",
+				numhl = "",
 			})
-			vim.fn.sign_define('DapLogPoint', {
-				text = '🟦',
-				texthl = 'DapLogPoint',
-				linehl = '',
-				numhl = ''
+			vim.fn.sign_define("DapLogPoint", {
+				text = "🟦",
+				texthl = "DapLogPoint",
+				linehl = "",
+				numhl = "",
 			})
-			vim.fn.sign_define('DapStopped', {
-				text = '▶️',
-				texthl = 'DapStopped',
-				linehl = 'DapStoppedLine',
-				numhl = ''
+			vim.fn.sign_define("DapStopped", {
+				text = "▶️",
+				texthl = "DapStopped",
+				linehl = "DapStoppedLine",
+				numhl = "",
 			})
-			vim.fn.sign_define('DapBreakpointRejected', {
-				text = '🚫',
-				texthl = 'DapBreakpointRejected',
-				linehl = '',
-				numhl = ''
+			vim.fn.sign_define("DapBreakpointRejected", {
+				text = "🚫",
+				texthl = "DapBreakpointRejected",
+				linehl = "",
+				numhl = "",
 			})
 		end,
 	},

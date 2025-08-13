@@ -5,7 +5,7 @@ return {
 		"hrsh7th/cmp-nvim-lsp",
 		{ "williamboman/mason.nvim" },
 		{ "williamboman/mason-lspconfig.nvim" },
-		{ "folke/neodev.nvim",                opts = {} },
+		{ "folke/neodev.nvim", opts = {} },
 	},
 	config = function()
 		local nvim_lsp = require("lspconfig")
@@ -29,30 +29,49 @@ return {
 					"<cmd>lua vim.diagnostic.open_float()<cr>",
 					{ desc = "View Diagnostics" }
 				)
+				-- Diagnostics
+				vim.keymap.set(
+					"n",
+					"<leader>ed",
+					"<cmd>lua vim.diagnostic.open_float()<cr>",
+					{ buffer = event.buf, desc = "View Diagnostics" }
+				)
+				vim.keymap.set(
+					"n",
+					"ne",
+					"<cmd>lua vim.diagnostic.goto_next()<cr>",
+					{ buffer = event.buf, desc = "Next Diagnostic" }
+				)
+				vim.keymap.set(
+					"n",
+					"np",
+					"<cmd>lua vim.diagnostic.goto_prev()<cr>",
+					{ buffer = event.buf, desc = "Previous Diagnostic" }
+				)
+
+				-- Actions
 				vim.keymap.set("n", "<leader>re", "<cmd>lua vim.lsp.buf.rename()<cr>", opts)
-				vim.keymap.set({ "n", "x" }, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<cr>",
-					opts)
+				vim.keymap.set({ "n", "x" }, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<cr>", opts)
 				vim.keymap.set("n", "<leader>.", "<cmd>lua vim.lsp.buf.code_action()<cr>", opts)
 			end,
 		})
 
-
-		vim.lsp.config('basedpyright', {
+		vim.lsp.config("basedpyright", {
 			settings = {
 				basedpyright = {
 					disableOrganizeImports = true,
 					analysis = {
-						typeCheckingMode = 'basic',
-						diagnosticMode = 'workspace',
+						typeCheckingMode = "basic",
+						diagnosticMode = "workspace",
 						autoSearchPath = true,
 					},
 				},
-			}
+			},
 		})
-		vim.lsp.config('ruff', {
+		vim.lsp.config("ruff", {
 			init_options = {
 				settings = {
-					configurationPreference = 'filesystemFirst',
+					configurationPreference = "filesystemFirst",
 					fixAll = true,
 					organizeImports = true,
 					lint = {
@@ -66,7 +85,7 @@ return {
 			},
 		})
 
-		vim.lsp.config('vtsls', {
+		vim.lsp.config("vtsls", {
 			root_dir = nvim_lsp.util.root_pattern(
 				".git",
 				"pnpm-workspace.yaml",
@@ -86,7 +105,6 @@ return {
 				},
 			},
 		})
-
 
 		-- Ensure LSP servers are installed
 		require("mason-lspconfig").setup({

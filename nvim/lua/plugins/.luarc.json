@@ -1,0 +1,5 @@
+{
+    "diagnostics.globals": [
+        "venv_bin_detection"
+    ]
+}
