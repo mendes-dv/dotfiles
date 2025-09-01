@@ -14,7 +14,6 @@ map("n", "<leader>q", "<CMD>q<CR>")
 map("i", "jk", "<ESC>")
 
 -- NeoTree
-map("n", "<C-e>", "<CMD>Neotree toggle<CR>")
 
 -- New Windows
 map("n", "<leader>o", "<CMD>vsplit<CR>")

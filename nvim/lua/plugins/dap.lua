@@ -21,10 +21,20 @@ return {
 		dependencies = {
 			{
 				"rcarriga/nvim-dap-ui",
-				dependencies = { "nvim-neotest/nvim-nio" },
+				dependencies = { "nvim-neotest/nvim-nio", "leoluz/nvim-dap-go" },
 				config = function()
 					local dap = require("dap")
 					local dapui = require("dapui")
+					require("dap-go").setup({
+						dap_configurations = {
+							{
+								type = "go",
+								name = "Attach remote",
+								mode = "remote",
+								request = "attach",
+							},
+						},
+					})
 
 					dapui.setup({
 						icons = { expanded = "▾", collapsed = "▸", current_frame = "▸" },
@@ -39,7 +49,7 @@ return {
 						layouts = {
 							{
 								elements = {
-									{ id = "scopes", size = 0.25 },
+									{ id = "scopes", size = 0.25, icons = "▸" },
 									"breakpoints",
 									"stacks",
 									"watches",
@@ -130,6 +140,7 @@ return {
 							"js-debug-adapter", -- JavaScript/TypeScript
 							"python", -- Python debugger
 							"node2", -- Node.js debugger
+							"delve", -- Go debugger
 						},
 						handlers = {},
 					})
@@ -220,15 +231,61 @@ return {
 					}
 				end
 
-				-- Always add manual configuration as fallback
 				table.insert(configs, {
 					type = "coreclr",
-					name = "Launch API (Swagger)",
+					name = "Launch (from launchSettings.json)",
 					request = "launch",
 					program = function()
-						-- Build the project first
-						vim.fn.jobstart("dotnet build src/Api", { stdout_buffered = true })
-						return vim.fn.getcwd() .. "/src/Api/bin/Debug/net8.0/Api.dll"
+						local dll = ensure_dll()
+						if dll then
+							local co = coroutine.running()
+							rebuild_project(co, dll.project_path)
+							return dll.relative_dll_path
+						end
+						return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
+					end,
+					cwd = function()
+						local dll = ensure_dll()
+						if dll then
+							return dll.relative_project_path
+						end
+						return vim.fn.getcwd()
+					end,
+					env = function()
+						local dll = ensure_dll()
+						if dll then
+							return dotnet.get_launch_profile_env(dll.project_name, dll.relative_project_path)
+						end
+						return nil
+					end,
+					args = function()
+						local dll = ensure_dll()
+						if dll then
+							return dotnet.get_launch_profile_args(dll.project_name, dll.relative_project_path)
+						end
+						return {}
+					end,
+				})
+
+				table.insert(configs, {
+					type = "netcoredbg",
+					name = "Launch OpticsFlow",
+					request = "launch",
+					program = function()
+						-- Build synchronously so DLL exists before debugger launches
+						local result = vim.fn.systemlist({
+							"dotnet",
+							"run",
+							"--project",
+							"apps/backend/src/Api",
+							"--launch-profile",
+							"Api",
+						})
+						for _, line in ipairs(result) do
+							vim.notify("[dotnet build] " .. line, vim.log.levels.INFO)
+						end
+
+						return vim.fn.getcwd() .. "/apps/backend/src/Api/bin/Debug/net9.0/Api.dll"
 					end,
 					cwd = "${workspaceFolder}/src/Api",
 					env = {
@@ -236,7 +293,13 @@ return {
 					},
 					args = { "--urls", "https://localhost:7073;http://localhost:7071" },
 					stopAtEntry = false,
+					logging = {
+						engineLogging = true,
+						moduleLoad = true,
+						trace = true,
+					},
 				})
+
 				table.insert(configs, {
 					type = "netcoredbg",
 					name = "launch - netcoredbg",
@@ -290,50 +353,11 @@ return {
 			-- Python configuration with virtual environment support
 			local pythonPath = function()
 				local cwd = vim.loop.cwd()
-
-				-- First, check for virtual environment in current directory
-				if vim.fn.executable(cwd .. "/.venv/bin/python") == 1 then
-					return cwd .. "/.venv/bin/python"
+				local venv_python = cwd .. "/.venv/bin/python"
+				if vim.fn.executable(venv_python) == 1 then
+					return venv_python
 				end
-
-				-- Check for common virtual environment locations
-				local venv_paths = {
-					cwd .. "/venv/bin/python",
-					cwd .. "/.virtualenv/bin/python",
-					cwd .. "/env/bin/python",
-				}
-
-				for _, path in ipairs(venv_paths) do
-					if vim.fn.executable(path) == 1 then
-						return path
-					end
-				end
-
-				-- Try to find Python in PATH
-				local python_candidates = { "python3", "python", "python3.11", "python3.10", "python3.9" }
-				for _, python_cmd in ipairs(python_candidates) do
-					if vim.fn.executable(python_cmd) == 1 then
-						return python_cmd
-					end
-				end
-
-				-- Check common system Python locations
-				local system_paths = {
-					"/usr/bin/python3",
-					"/usr/local/bin/python3",
-					"/opt/homebrew/bin/python3", -- macOS with Homebrew
-					"/usr/bin/python",
-					"/usr/local/bin/python",
-				}
-
-				for _, path in ipairs(system_paths) do
-					if vim.fn.executable(path) == 1 then
-						return path
-					end
-				end
-
-				-- Last resort: return 'python3' and let the system handle it
-				return "python3"
+				return "python3" -- fallback
 			end
 
 			local set_python_dap = function()
@@ -437,6 +461,43 @@ return {
 				callback = function()
 					set_python_dap()
 				end,
+			})
+
+			dap.configurations.go = vim.list_extend(dap.configurations.go or {}, {
+				{
+					type = "go",
+					name = "Debug cmd/main.go",
+					request = "launch",
+					program = "${workspaceFolder}/cmd/main.go",
+					outputMode = "remote",
+				},
+				{
+					type = "go",
+					name = "Debug API Server",
+					request = "launch",
+					program = "${workspaceFolder}/cmd/api/main.go",
+					console = "integratedTerminal",
+					showLog = true,
+					logOutput = "dap",
+				},
+				{
+					type = "go",
+					name = "Debug Worker",
+					request = "launch",
+					program = "${workspaceFolder}/cmd/worker/main.go",
+					console = "integratedTerminal",
+					showLog = true,
+					logOutput = "dap",
+				},
+				{
+					type = "go",
+					name = "Debug with External Terminal",
+					request = "launch",
+					program = "${workspaceFolder}/cmd/main.go",
+					console = "externalTerminal",
+					showLog = true,
+					logOutput = "dap",
+				},
 			})
 
 			-- Enhanced keymaps with .NET specific shortcuts
