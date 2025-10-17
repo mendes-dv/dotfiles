@@ -1,3 +1,4 @@
+-- DAP View keymaps
 local function rebuild_project(co, path)
 	local spinner = require("easy-dotnet.ui-modules.spinner").new()
 	spinner:start_spinner("Building")
@@ -20,91 +21,10 @@ return {
 		"mfussenegger/nvim-dap",
 		dependencies = {
 			{
-				"rcarriga/nvim-dap-ui",
-				dependencies = { "nvim-neotest/nvim-nio", "leoluz/nvim-dap-go" },
-				config = function()
-					local dap = require("dap")
-					local dapui = require("dapui")
-					require("dap-go").setup({
-						dap_configurations = {
-							{
-								type = "go",
-								name = "Attach remote",
-								mode = "remote",
-								request = "attach",
-							},
-						},
-					})
-
-					dapui.setup({
-						icons = { expanded = "▾", collapsed = "▸", current_frame = "▸" },
-						mappings = {
-							expand = { "<CR>", "<2-LeftMouse>" },
-							open = "o",
-							remove = "d",
-							edit = "e",
-							repl = "r",
-							toggle = "t",
-						},
-						layouts = {
-							{
-								elements = {
-									{ id = "scopes", size = 0.25, icons = "▸" },
-									"breakpoints",
-									"stacks",
-									"watches",
-								},
-								size = 40,
-								position = "left",
-							},
-							{
-								elements = {
-									"repl",
-									"console",
-								},
-								size = 0.25,
-								position = "bottom",
-							},
-						},
-						controls = {
-							enabled = true,
-							element = "repl",
-							icons = {
-								pause = "",
-								play = "",
-								step_into = "",
-								step_over = "",
-								step_out = "",
-								step_back = "",
-								run_last = "↻",
-								terminate = "□",
-							},
-						},
-						floating = {
-							max_height = nil,
-							max_width = nil,
-							border = "single",
-							mappings = {
-								close = { "q", "<Esc>" },
-							},
-						},
-						windows = { indent = 1 },
-						render = {
-							max_type_length = nil,
-							max_value_lines = 100,
-						},
-					})
-					-- Auto open/close dapui
-					dap.listeners.after.event_initialized["dapui_config"] = function()
-						dapui.open()
-					end
-					dap.listeners.before.event_terminated["dapui_config"] = function()
-						dapui.close()
-					end
-					dap.listeners.before.event_exited["dapui_config"] = function()
-						dapui.close()
-					end
-				end,
+				"igorlfs/nvim-dap-view",
+				---@module 'dap-view'
+				---@type dapview.Config
+				opts = {},
 			},
 
 			-- Virtual text during debugging
@@ -150,7 +70,6 @@ return {
 
 		config = function()
 			local dap = require("dap")
-			local dapui = require("dapui")
 
 			-- Check if easy-dotnet is available
 			local has_easy_dotnet, dotnet = pcall(require, "easy-dotnet")
@@ -329,6 +248,17 @@ return {
 				dap.listeners.before["event_terminated"]["easy-dotnet"] = function()
 					debug_dll = nil
 				end
+			end
+
+			-- Auto open/close dap-view
+			dap.listeners.after.event_initialized["dap_view_config"] = function()
+				vim.cmd("DapViewOpen")
+			end
+			dap.listeners.before.event_terminated["dap_view_config"] = function()
+				vim.cmd("DapViewClose")
+			end
+			dap.listeners.before.event_exited["dap_view_config"] = function()
+				vim.cmd("DapViewClose")
 			end
 
 			-- JavaScript/TypeScript configuration
@@ -536,12 +466,11 @@ return {
 			keymap("n", "q", function()
 				dap.terminate()
 				dap.clear_breakpoints()
+				vim.cmd("DapViewClose")
 			end, { desc = "Terminate and clear breakpoints" })
 
-			-- DAP UI keymaps
-			keymap("n", "<Leader>dU", dapui.toggle, { desc = "Debug: Toggle UI" })
-			keymap("v", "<Leader>de", dapui.eval, { desc = "Debug: Evaluate selection" })
-			keymap("n", "<Leader>de", dapui.eval, { desc = "Debug: Evaluate expression" })
+			-- DAP View keymaps
+      keymap("n", "<Leader>dU", vim.cmd.DapViewToggle, { desc = "Debug: Toggle View" })
 
 			-- Signs for breakpoints
 			vim.fn.sign_define("DapBreakpoint", {
