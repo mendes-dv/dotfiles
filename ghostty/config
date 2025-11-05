@@ -1,0 +1,8 @@
+font-family = "JetBrains Mono"
+font-thicken = false
+theme = "Catppuccin Mocha"
+macos-titlebar-style = "hidden"
+shell-integration = "zsh"
+
+# Delete word
+keybind = alt+backspace=text:\x1b\x7f
