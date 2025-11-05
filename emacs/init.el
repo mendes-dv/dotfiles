@@ -184,22 +184,19 @@
     "xb" '(persp-switch-to-buffer :which-key "switch to buffer")
     "xa" '(persp-add-buffer :which-key "add buffer"))
   
-  ;; LSP operations - updated with new bindings
+  ;; Code operations (LSP and refactoring)
   (my/leader-keys
     "." '(lsp-execute-code-action :which-key "code action")
-    "l" '(:ignore t :which-key "lsp")
-    "lf" '(lsp-format-buffer :which-key "format")
-    "ld" '(lsp-find-definition :which-key "definition")
-    "lD" '(lsp-find-references :which-key "references")
-    "li" '(lsp-find-implementation :which-key "implementation")
-    "lt" '(lsp-find-type-definition :which-key "type definition")
-    "ls" '(lsp-ivy-workspace-symbol :which-key "workspace symbol")
-    "le" '(flycheck-list-errors :which-key "list errors"))
-  
-  ;; Refactor operations - new group
-  (my/leader-keys
-    "r" '(:ignore t :which-key "refactor")
-    "re" '(lsp-rename :which-key "rename variable"))
+    "c" '(:ignore t :which-key "code")
+    "cf" '(lsp-format-buffer :which-key "format")
+    "cd" '(lsp-find-definition :which-key "definition")
+    "cD" '(lsp-find-references :which-key "references")
+    "ci" '(lsp-find-implementation :which-key "implementation")
+    "ct" '(lsp-find-type-definition :which-key "type definition")
+    "cs" '(lsp-ivy-workspace-symbol :which-key "workspace symbol")
+    "ce" '(flycheck-list-errors :which-key "list errors")
+    "cr" '(:ignore t :which-key "refactor")
+    "crn" '(lsp-rename :which-key "rename"))
   
   ;; Debug operations
   (my/leader-keys
