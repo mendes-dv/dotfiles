@@ -68,6 +68,19 @@
 (setq auto-save-default nil)
 (setq create-lockfiles nil)
 
+;; Font Configuration
+(set-face-attribute 'default nil
+                    :font "JetBrainsMono Nerd Font"
+                    :height 120)  ; Font size (120 = 12pt)
+
+(set-face-attribute 'fixed-pitch nil
+                    :font "JetBrainsMono Nerd Font"
+                    :height 120)
+
+(set-face-attribute 'variable-pitch nil
+                    :font "JetBrainsMono Nerd Font"
+                    :height 120)
+
 ;; ============================================================================
 ;; Evil Mode (Vim Keybindings)
 ;; ============================================================================
