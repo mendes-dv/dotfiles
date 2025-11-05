@@ -250,6 +250,7 @@
   ;; Git operations
   (my/leader-keys
     "g" '(:ignore t :which-key "git")
+    "gg" '(magit-status :which-key "magit status")
     "gs" '(magit-status :which-key "status")
     "gc" '(magit-commit :which-key "commit")
     "gp" '(magit-push :which-key "push")
