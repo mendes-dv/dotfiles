@@ -207,7 +207,6 @@
     "ci" '(lsp-find-implementation :which-key "implementation")
     "ct" '(lsp-find-type-definition :which-key "type definition")
     "cs" '(lsp-ivy-workspace-symbol :which-key "workspace symbol")
-    "ce" '(flycheck-list-errors :which-key "list errors")
     "cr" '(:ignore t :which-key "refactor")
     "crn" '(lsp-rename :which-key "rename"))
   
