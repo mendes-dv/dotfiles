@@ -293,6 +293,12 @@
 (define-key evil-normal-state-map (kbd "C-w k") 'evil-window-up)
 (define-key evil-normal-state-map (kbd "C-w l") 'evil-window-right)
 
+;; Vim-style LSP navigation keybindings (require LSP mode to be loaded)
+(with-eval-after-load 'lsp-mode
+  (define-key evil-normal-state-map (kbd "g d") 'lsp-find-definition)
+  (define-key evil-normal-state-map (kbd "g i") 'lsp-find-implementation)
+  (define-key evil-normal-state-map (kbd "g r") 'lsp-find-references))
+
 ;; Robust Treemacs toggle wrapper and bindings
 (defun my/toggle-treemacs ()
   "Load treemacs if needed and toggle it.
