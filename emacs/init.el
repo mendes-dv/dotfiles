@@ -237,15 +237,15 @@
     "ot" '(org-todo :which-key "todo")
     "op" '(org-pomodoro :which-key "pomodoro"))
   
-  ;; Org Roam operations
+  ;; Org Roam operations (moved under org prefix)
   (my/leader-keys
-    "n" '(:ignore t :which-key "notes")
-    "nf" '(org-roam-node-find :which-key "find node")
-    "ni" '(org-roam-node-insert :which-key "insert node")
-    "nc" '(org-roam-capture :which-key "capture")
-    "ng" '(org-roam-graph :which-key "graph")
-    "nb" '(org-roam-buffer-toggle :which-key "toggle buffer")
-    "nj" '(org-roam-dailies-capture-today :which-key "daily note"))
+    "or" '(:ignore t :which-key "roam")
+    "orf" '(org-roam-node-find :which-key "find node")
+    "ori" '(org-roam-node-insert :which-key "insert node")
+    "orc" '(org-roam-capture :which-key "capture")
+    "org" '(org-roam-graph :which-key "graph")
+    "orb" '(org-roam-buffer-toggle :which-key "toggle buffer")
+    "orj" '(org-roam-dailies-capture-today :which-key "daily note"))
   
   ;; Git operations
   (my/leader-keys
@@ -273,6 +273,13 @@
     "jc" '(avy-goto-char :which-key "goto char")
     "jw" '(avy-goto-word-1 :which-key "goto word")
     "jl" '(avy-goto-line :which-key "goto line"))
+  
+  ;; Navigate errors - new
+  (my/leader-keys
+    "n" '(:ignore t :which-key "navigate")
+    "ne" '(flycheck-next-error :which-key "next error")
+    "np" '(flycheck-previous-error :which-key "previous error")
+    "nl" '(flycheck-list-errors :which-key "list errors"))
   
   ;; Toggle operations - updated with terminal
   (my/leader-keys
@@ -381,7 +388,11 @@ If treemacs is not installed, present a helpful error."
   (company-idle-delay 0.0))
 
 (use-package flycheck
-  :hook (lsp-mode . flycheck-mode))
+  :hook (lsp-mode . flycheck-mode)
+  :config
+  ;; Show error list at bottom of screen
+  (setq flycheck-display-errors-delay 0.3)
+  (setq flycheck-indication-mode 'left-fringe))
 
 ;; ============================================================================
 ;; Language-Specific LSP Configuration
