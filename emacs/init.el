@@ -1,6 +1,6 @@
 ;;; Commentary:
 ;; Comprehensive Emacs configuration with:
-;; - LSP support for Python, Go, TypeScript, C#, and Bash
+;; - LSP support for Python, Go, TypeScript, C#, Bash, and Svelte
 ;; - DAP (Debug Adapter Protocol) with per-project configurations
 ;; - Org-mode with Org-roam
 ;; - Dashboard with recent files, projects, and org calendar integration
@@ -418,6 +418,13 @@ If treemacs is not installed, present a helpful error."
   :ensure nil
   :mode ("\\.sh\\'" "\\.bash\\'")
   :hook (sh-mode . lsp-deferred))
+
+;; Svelte
+(use-package svelte-mode
+  :mode "\\.svelte\\'"
+  :hook (svelte-mode . lsp-deferred)
+  :config
+  (setq svelte-basic-offset 2))
 
 ;; ============================================================================
 ;; DAP (Debug Adapter Protocol)
