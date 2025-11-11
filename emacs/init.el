@@ -674,9 +674,14 @@ _i_: import        _S_: save          _i_: isolate buffers
   (eat-term-name "xterm-256color")
   (eat-kill-buffer-on-exit t)
   :config
-  ;; Close eat terminal with C-g C-g in evil normal mode
+  ;; Set eat to start in insert mode and add window navigation keybindings
   (with-eval-after-load 'evil
-    (evil-set-initial-state 'eat-mode 'emacs)))
+    ;; Start in insert state so we can use Esc to go to normal mode
+    (evil-set-initial-state 'eat-mode 'insert)
+    
+    ;; Allow C-w window navigation in eat insert state
+    (evil-define-key 'insert eat-mode-map
+      (kbd "C-w") 'evil-window-map)))
 
 ;; Custom functions for eat terminal
 (defun my/eat-toggle ()
