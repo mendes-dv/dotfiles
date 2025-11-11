@@ -682,15 +682,27 @@ _i_: import        _S_: save          _i_: isolate buffers
   ;;   - Esc: Switch to normal mode (standard evil behavior)
   ;;   - C-w h/j/k/l: Navigate to left/down/up/right window
   ;;   - C-w followed by any window command (v, s, d, etc.)
+  ;;   - :q in normal mode: Hide the terminal (toggle it off)
   (with-eval-after-load 'evil
     ;; Start in insert state so we can use Esc to go to normal mode
     (evil-set-initial-state 'eat-mode 'insert)
     
     ;; Allow C-w window navigation in eat insert state
     (evil-define-key 'insert eat-mode-map
-      (kbd "C-w") 'evil-window-map)))
+      (kbd "C-w") 'evil-window-map)
+    
+    ;; Override :q in eat buffers to hide the terminal instead of deleting the window
+    (evil-define-key 'normal eat-mode-map
+      (kbd "q") 'my/eat-quit)))
 
 ;; Custom functions for eat terminal
+(defun my/eat-quit ()
+  "Quit/hide the eat terminal when pressing 'q' in normal mode.
+This is used to hide the popup terminal instead of deleting the window."
+  (interactive)
+  (when (string= (buffer-name) "*eat-popup*")
+    (my/eat-toggle)))
+
 (defun my/eat-toggle ()
   "Toggle a popup terminal at the bottom using eat."
   (interactive)
