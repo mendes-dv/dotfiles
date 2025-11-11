@@ -440,10 +440,6 @@ If treemacs is not installed, present a helpful error."
 ;; DAP (Debug Adapter Protocol)
 ;; ============================================================================
 
-
-(use-package treemacs-magit
-  :after (treemacs magit)
-  :ensure t)
 (use-package dap-mode
   :after lsp-mode
   :commands dap-debug
@@ -812,6 +808,12 @@ _i_: import        _S_: save          _i_: isolate buffers
   (treemacs-follow-mode t)
   (treemacs-filewatch-mode t))
 
+(use-package treemacs-all-the-icons
+  :after (treemacs all-the-icons)
+  :ensure t
+  :config
+  (treemacs-load-theme "all-the-icons"))
+
 (use-package lsp-treemacs
   :after (lsp treemacs)
   :commands lsp-treemacs-errors-list
@@ -821,7 +823,6 @@ _i_: import        _S_: save          _i_: isolate buffers
 (use-package treemacs-evil
   :after (treemacs evil)
   :ensure t)
-
 
 (use-package treemacs-projectile
   :after (treemacs projectile)
