@@ -675,6 +675,10 @@ _i_: import        _S_: save          _i_: isolate buffers
   (eat-kill-buffer-on-exit t)
   :config
   ;; Set eat to start in insert mode and add window navigation keybindings
+  ;; Available keybindings in eat terminal:
+  ;;   - Esc: Switch to normal mode (standard evil behavior)
+  ;;   - C-w h/j/k/l: Navigate to left/down/up/right window
+  ;;   - C-w followed by any window command (v, s, d, etc.)
   (with-eval-after-load 'evil
     ;; Start in insert state so we can use Esc to go to normal mode
     (evil-set-initial-state 'eat-mode 'insert)
