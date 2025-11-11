@@ -568,6 +568,9 @@ If treemacs is not installed, present a helpful error."
         '("Press 'o' for Org Agenda Calendar | 'r' for Recent Files | 'p' for Projects"))
   (setq dashboard-footer-icon "")
   
+  ;; Open dashboard on startup
+  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+  
   :bind
   (:map dashboard-mode-map
         ("o" . (lambda () (interactive) (org-agenda nil "a")))
