@@ -549,6 +549,7 @@ If treemacs is not installed, present a helpful error."
 ;; ============================================================================
 
 (use-package dashboard
+  :ensure t
   :config
   (dashboard-setup-startup-hook)
   
@@ -568,8 +569,11 @@ If treemacs is not installed, present a helpful error."
         '("Press 'o' for Org Agenda Calendar | 'r' for Recent Files | 'p' for Projects"))
   (setq dashboard-footer-icon "")
   
-  ;; Open dashboard on startup
-  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+  ;; Ensure dashboard buffer is shown on startup instead of scratch
+  (setq initial-buffer-choice (lambda ()
+                                 (get-buffer-create "*dashboard*")
+                                 (dashboard-insert-startupify-lists)
+                                 (get-buffer "*dashboard*")))
   
   :bind
   (:map dashboard-mode-map
