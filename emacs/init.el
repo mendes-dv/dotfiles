@@ -682,7 +682,7 @@ _i_: import        _S_: save          _i_: isolate buffers
   ;;   - Esc: Switch to normal mode (standard evil behavior)
   ;;   - C-w h/j/k/l: Navigate to left/down/up/right window
   ;;   - C-w followed by any window command (v, s, d, etc.)
-  ;;   - :q in normal mode: Hide the terminal (toggle it off)
+  ;;   - q in normal mode: Hide the terminal (toggle it off)
   (with-eval-after-load 'evil
     ;; Start in insert state so we can use Esc to go to normal mode
     (evil-set-initial-state 'eat-mode 'insert)
@@ -691,7 +691,7 @@ _i_: import        _S_: save          _i_: isolate buffers
     (evil-define-key 'insert eat-mode-map
       (kbd "C-w") 'evil-window-map)
     
-    ;; Override :q in eat buffers to hide the terminal instead of deleting the window
+    ;; Override q in eat buffers to hide the terminal instead of deleting the window
     (evil-define-key 'normal eat-mode-map
       (kbd "q") 'my/eat-quit)))
 
