@@ -704,8 +704,20 @@ _i_: import        _S_: save          _i_: isolate buffers
         (select-window window)
         (if buffer
             (switch-to-buffer buffer)
-          (eat))
-        (rename-buffer buffer-name)))))
+          (eat)
+          (rename-buffer buffer-name)
+          ;; Add cleanup hook when buffer is killed
+          (add-hook 'kill-buffer-hook 'my/eat-popup-cleanup nil t))
+        ;; Mark this as a popup window so it doesn't interfere with other windows
+        (set-window-parameter window 'no-other-window t)
+        (set-window-parameter window 'no-delete-other-windows t)))))
+
+(defun my/eat-popup-cleanup ()
+  "Clean up the eat popup window when the buffer is killed."
+  (when (string= (buffer-name) "*eat-popup*")
+    (let ((window (get-buffer-window (current-buffer))))
+      (when window
+        (ignore-errors (delete-window window))))))
 
 (defun my/eat-project ()
   "Open eat terminal in a buffer for the current project."
