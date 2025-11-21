@@ -43,7 +43,7 @@ layout {
         command_git_branch_format      "#[fg=blue] {stdout} "
         command_git_branch_interval    "10"
         command_git_branch_rendermode  "static"
-        command_cwd_command            "pwd | sed 's|^$HOME|~|'"
+        command_cwd_command            "pwd | sed 's#^$HOME#~#'"
         command_cwd_format             "#[fg=#A6E3A1] 󰉋 {stdout} "
         command_cwd_interval           "2"
         command_cwd_rendermode         "static"
