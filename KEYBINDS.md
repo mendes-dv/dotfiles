@@ -53,7 +53,7 @@ Both Zellij and Tmux now share similar keybinding patterns for consistency.
 | Key | Action | Notes |
 |-----|--------|-------|
 | `h/j/k/l` or arrows | Resize pane in direction | |
-| `+/=/- ` | Toggle zoom (Tmux only) | |
+| `z` | Toggle zoom (Tmux only) | |
 
 ### Scroll/Copy Mode (`Ctrl+b`)
 
