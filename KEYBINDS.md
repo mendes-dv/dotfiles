@@ -46,6 +46,7 @@ Both Zellij and Tmux now share similar keybinding patterns for consistency.
 |-----|--------|-------|
 | `d` | Detach from session | |
 | `n` | New session | |
+| `s` | Switch session | Opens interactive session chooser |
 | `q` | Quit session | Asks for confirmation in Tmux |
 
 ### Resize Mode (`Ctrl+r`)
