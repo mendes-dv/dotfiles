@@ -71,6 +71,18 @@ The top bar in Zellij now displays:
 
 The current working directory helps identify which project/folder you're working in when splitting panes with files from different projects.
 
+## Tmux Status Bar
+
+The bottom bar in Tmux displays:
+- **Left**: Session name
+- **Right**: Current directory, date/time
+
+Like Zellij, the current directory display helps identify which project you're working in.
+
+## Theme
+
+Both Zellij and Tmux use the **Catppuccin Mocha** theme for a consistent, eye-friendly color scheme across terminal multiplexers.
+
 ## Tips
 
 1. **Muscle Memory**: The keybindings are now consistent between Zellij and Tmux, so you can switch between them without relearning.
