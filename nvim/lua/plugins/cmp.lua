@@ -20,6 +20,12 @@ return {
 
 		require("luasnip.loaders.from_vscode").lazy_load()
 
+		-- Register easy-dotnet package completion source
+		local has_dotnet, dotnet = pcall(require, "easy-dotnet")
+		if has_dotnet then
+			cmp.register_source("easy-dotnet", dotnet.package_completion_source)
+		end
+
 		cmp.setup({
 			snippet = {
 				expand = function(args)
@@ -38,6 +44,7 @@ return {
 			}),
 			sources = cmp.config.sources({
 				{ name = "nvim_lsp" },
+				{ name = "easy-dotnet" },
 				{ name = "luasnip" },
 				{ name = "buffer" },
 				{ name = "path" },

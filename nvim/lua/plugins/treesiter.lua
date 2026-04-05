@@ -11,6 +11,7 @@ return {
 		treesitter.setup({
 			highlight = {
 				enable = true,
+                disable = { "markdown" },  -- Add this line
 				additional_vim_regex_highlighting = false,
 			},
 			indent = { enable = true },
@@ -35,7 +36,6 @@ return {
 				"gitignore",
 				"c",
 				"rust",
-				"norg",
 			},
 			incremental_selection = {
 				enable = true,

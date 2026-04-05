@@ -22,5 +22,11 @@ vim.opt.autoread = true
 vim.opt.exrc = true
 vim.opt.secure = true
 vim.o.mouse = "a"
+vim.o.splitbelow = true
+vim.o.splitright = true
 vim.o.expandtab = true
 vim.o.shiftround = true
+-- Enable folding
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldenable = true

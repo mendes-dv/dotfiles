@@ -1,21 +1,3 @@
--- DAP View keymaps
-local function rebuild_project(co, path)
-	local spinner = require("easy-dotnet.ui-modules.spinner").new()
-	spinner:start_spinner("Building")
-	vim.fn.jobstart(string.format("dotnet build %s", path), {
-		on_exit = function(_, return_code)
-			if return_code == 0 then
-				spinner:stop_spinner("Built successfully")
-			else
-				spinner:stop_spinner("Build failed with exit code " .. return_code, vim.log.levels.ERROR)
-				error("Build failed")
-			end
-			coroutine.resume(co)
-		end,
-	})
-	coroutine.yield()
-end
-
 return {
 	{
 		"mfussenegger/nvim-dap",
@@ -72,7 +54,6 @@ return {
 			local dap = require("dap")
 
 			-- Check if easy-dotnet is available
-			local has_easy_dotnet, dotnet = pcall(require, "easy-dotnet")
 			local has_netcoredbg, _ = pcall(require, "easy-dotnet.netcoredbg")
 
 			if has_netcoredbg then
@@ -80,118 +61,22 @@ return {
 				require("easy-dotnet.netcoredbg").register_dap_variables_viewer()
 			end
 
-			local debug_dll = nil
-
-			local function ensure_dll()
-				if not has_easy_dotnet then
-					return nil
-				end
-				if debug_dll ~= nil then
-					return debug_dll
-				end
-				local dll = dotnet.get_debug_dll(true)
-				debug_dll = dll
-				return dll
-			end
-
-			-- .NET Core adapter configuration
+			-- .NET Core adapter configuration (easy-dotnet auto_register_dap handles the rest)
 			dap.adapters.coreclr = {
 				type = "executable",
 				command = "netcoredbg",
 				args = { "--interpreter=vscode" },
 			}
 
-			-- .NET configurations for C# and F#
+			-- Custom .NET configurations (auto-registered configs from easy-dotnet come first)
 			for _, value in ipairs({ "cs", "fsharp" }) do
-				local configs = {}
+				dap.configurations[value] = dap.configurations[value] or {}
 
-				if has_easy_dotnet then
-					-- Enhanced configurations with easy-dotnet
-					configs = {
-						{
-							type = "coreclr",
-							name = "Program (Auto)",
-							request = "launch",
-							env = function()
-								local dll = ensure_dll()
-								if dll then
-									local vars =
-										dotnet.get_environment_variables(dll.project_name, dll.relative_project_path)
-									return vars or nil
-								end
-								return nil
-							end,
-							program = function()
-								local dll = ensure_dll()
-								if dll then
-									local co = coroutine.running()
-									rebuild_project(co, dll.project_path)
-									return dll.relative_dll_path
-								end
-								return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
-							end,
-							cwd = function()
-								local dll = ensure_dll()
-								if dll then
-									return dll.relative_project_path
-								end
-								return vim.fn.getcwd()
-							end,
-						},
-						{
-							type = "coreclr",
-							name = "Test",
-							request = "attach",
-							processId = function()
-								local res = require("easy-dotnet").experimental.start_debugging_test_project()
-								return res.process_id
-							end,
-						},
-					}
-				end
-
-				table.insert(configs, {
-					type = "coreclr",
-					name = "Launch (from launchSettings.json)",
-					request = "launch",
-					program = function()
-						local dll = ensure_dll()
-						if dll then
-							local co = coroutine.running()
-							rebuild_project(co, dll.project_path)
-							return dll.relative_dll_path
-						end
-						return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
-					end,
-					cwd = function()
-						local dll = ensure_dll()
-						if dll then
-							return dll.relative_project_path
-						end
-						return vim.fn.getcwd()
-					end,
-					env = function()
-						local dll = ensure_dll()
-						if dll then
-							return dotnet.get_launch_profile_env(dll.project_name, dll.relative_project_path)
-						end
-						return nil
-					end,
-					args = function()
-						local dll = ensure_dll()
-						if dll then
-							return dotnet.get_launch_profile_args(dll.project_name, dll.relative_project_path)
-						end
-						return {}
-					end,
-				})
-
-				table.insert(configs, {
+				table.insert(dap.configurations[value], {
 					type = "netcoredbg",
 					name = "Launch OpticsFlow",
 					request = "launch",
 					program = function()
-						-- Build synchronously so DLL exists before debugger launches
 						local result = vim.fn.systemlist({
 							"dotnet",
 							"run",
@@ -203,7 +88,6 @@ return {
 						for _, line in ipairs(result) do
 							vim.notify("[dotnet build] " .. line, vim.log.levels.INFO)
 						end
-
 						return vim.fn.getcwd() .. "/apps/backend/src/Api/bin/Debug/net9.0/Api.dll"
 					end,
 					cwd = "${workspaceFolder}/src/Api",
@@ -212,14 +96,9 @@ return {
 					},
 					args = { "--urls", "https://localhost:7073;http://localhost:7071" },
 					stopAtEntry = false,
-					logging = {
-						engineLogging = true,
-						moduleLoad = true,
-						trace = true,
-					},
 				})
 
-				table.insert(configs, {
+				table.insert(dap.configurations[value], {
 					type = "netcoredbg",
 					name = "launch - netcoredbg",
 					request = "launch",
@@ -229,7 +108,8 @@ return {
 					cwd = "${workspaceFolder}",
 					console = "integratedTerminal",
 				})
-				table.insert(configs, {
+
+				table.insert(dap.configurations[value], {
 					type = "coreclr",
 					name = "Launch API with Profile",
 					request = "launch",
@@ -239,15 +119,6 @@ return {
 					stopAtEntry = false,
 					console = "integratedTerminal",
 				})
-
-				dap.configurations[value] = configs
-			end
-
-			-- Reset debug_dll after each terminated session (only if easy-dotnet is available)
-			if has_easy_dotnet then
-				dap.listeners.before["event_terminated"]["easy-dotnet"] = function()
-					debug_dll = nil
-				end
 			end
 
 			-- Auto open/close dap-view

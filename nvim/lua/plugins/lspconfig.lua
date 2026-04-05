@@ -30,26 +30,6 @@ return {
       end,
     })
 
-    -- Modern LSP config using vim.lsp.config
-    vim.lsp.config("pylsp", {
-      capabilities = capabilities,
-      settings = {
-        pylsp = {
-          plugins = {
-            pycodestyle = { enabled = false },
-            pyflakes = { enabled = false },
-            mccabe = { enabled = false },
-            pylint = { enabled = false },
-            yapf = { enabled = false },
-            black = { enabled = false },
-            autopep8 = { enabled = false },
-            ruff = { enabled = true }, -- use ruff-lsp instead
-            pylsp_mypy = { enabled = true, live_mode = false },
-          },
-        },
-      },
-    })
-
     vim.lsp.config("vtsls", {
       capabilities = capabilities,
       root_dir = require("lspconfig.util").root_pattern(
@@ -83,7 +63,6 @@ return {
         "html",
         "cssls",
         "gopls",
-        "pylsp",
       },
       automatic_installation = true,
       automatic_enable = true,
