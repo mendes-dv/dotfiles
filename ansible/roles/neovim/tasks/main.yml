@@ -1,0 +1,13 @@
+---
+- name: Ensure nvim config is linked
+  ansible.builtin.file:
+    src: "{{ dotfiles_dir }}/nvim"
+    dest: "{{ config_dir }}/nvim"
+    state: link
+    force: true
+
+- name: Install Neovim plugins (headless)
+  ansible.builtin.shell: nvim --headless "+Lazy! sync" +qa
+  register: lazy_result
+  changed_when: "'installing' in lazy_result.stderr"
+  failed_when: false

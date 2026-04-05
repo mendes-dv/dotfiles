@@ -1,0 +1,83 @@
+---
+- name: macOS - Install Homebrew
+  when: is_macos
+  ansible.builtin.shell: |
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  args:
+    creates: /opt/homebrew/bin/brew
+
+- name: macOS - Install common packages
+  when: is_macos
+  community.general.homebrew:
+    name: "{{ common_packages }}"
+    state: present
+
+- name: macOS - Install cask packages
+  when: is_macos
+  community.general.homebrew_cask:
+    name: "{{ brew_packages }}"
+    state: present
+
+- name: Linux (Debian/Ubuntu) - Install packages
+  when: ansible_os_family == 'Debian'
+  become: true
+  ansible.builtin.apt:
+    name: "{{ common_packages + linux_packages }}"
+    state: present
+    update_cache: true
+
+- name: Linux (Arch) - Install packages
+  when: ansible_os_family == 'Archlinux'
+  become: true
+  community.general.pacman:
+    name: "{{ common_packages }}"
+    state: present
+
+- name: Linux (Fedora/RHEL) - Install packages
+  when: ansible_os_family == 'RedHat'
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ common_packages }}"
+    state: present
+
+- name: Install .NET SDK
+  when: is_macos
+  community.general.homebrew_cask:
+    name: "dotnet-sdk"
+    state: present
+
+- name: Install .NET SDK (Linux)
+  when: is_linux
+  ansible.builtin.shell: |
+    curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel {{ dotnet_version }}
+  args:
+    creates: "{{ ansible_env.HOME }}/.dotnet/dotnet"
+
+- name: Install .NET global tools
+  ansible.builtin.shell: "dotnet tool install -g {{ item.name }}"
+  loop: "{{ dotnet_tools }}"
+  register: dotnet_tool_result
+  changed_when: "'was successfully installed' in dotnet_tool_result.stdout"
+  failed_when: false
+
+- name: Install Claude Code CLI
+  ansible.builtin.shell: npm install -g {{ item }}
+  loop: "{{ npm_global_packages }}"
+  register: npm_result
+  changed_when: "'added' in npm_result.stdout"
+  failed_when: false
+
+- name: Linux - Install Tailscale
+  when: is_linux
+  become: true
+  ansible.builtin.shell: curl -fsSL https://tailscale.com/install.sh | sh
+  args:
+    creates: /usr/bin/tailscale
+
+- name: Linux - Enable Tailscale
+  when: is_linux
+  become: true
+  ansible.builtin.systemd:
+    name: tailscaled
+    enabled: true
+    state: started

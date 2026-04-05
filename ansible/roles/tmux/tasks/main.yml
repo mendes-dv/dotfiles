@@ -1,0 +1,13 @@
+---
+- name: Install TPM (Tmux Plugin Manager)
+  ansible.builtin.git:
+    repo: https://github.com/tmux-plugins/tpm.git
+    dest: "{{ ansible_env.HOME }}/.tmux/plugins/tpm"
+    depth: 1
+    version: master
+
+- name: Install tmux plugins
+  ansible.builtin.shell: "{{ ansible_env.HOME }}/.tmux/plugins/tpm/bin/install_plugins"
+  register: tpm_result
+  changed_when: "'Installing' in tpm_result.stdout"
+  failed_when: false

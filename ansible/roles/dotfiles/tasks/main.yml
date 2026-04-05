@@ -1,0 +1,44 @@
+---
+- name: Ensure .config directory exists
+  ansible.builtin.file:
+    path: "{{ config_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Create config symlinks
+  ansible.builtin.file:
+    src: "{{ dotfiles_dir }}/{{ item.src }}"
+    dest: "{{ ansible_env.HOME }}/{{ item.dest }}"
+    state: link
+    force: true
+  loop: "{{ symlinks }}"
+
+- name: Symlink .tmux.conf
+  ansible.builtin.file:
+    src: "{{ dotfiles_dir }}/tmux/.tmux.conf"
+    dest: "{{ ansible_env.HOME }}/.tmux.conf"
+    state: link
+    force: true
+
+- name: Symlink .ideavimrc
+  ansible.builtin.file:
+    src: "{{ dotfiles_dir }}/.ideavimrc"
+    dest: "{{ ansible_env.HOME }}/.ideavimrc"
+    state: link
+    force: true
+
+- name: macOS - Symlink Aerospace config
+  when: is_macos
+  ansible.builtin.file:
+    src: "{{ dotfiles_dir }}/.aerospace.toml"
+    dest: "{{ ansible_env.HOME }}/.aerospace.toml"
+    state: link
+    force: true
+
+- name: Linux - Symlink Hyprland config
+  when: is_linux
+  ansible.builtin.file:
+    src: "{{ dotfiles_dir }}/hyprland.conf"
+    dest: "{{ config_dir }}/hypr/hyprland.conf"
+    state: link
+    force: true

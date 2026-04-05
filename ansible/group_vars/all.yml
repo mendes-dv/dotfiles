@@ -1,0 +1,41 @@
+---
+common_packages:
+  - git
+  - curl
+  - wget
+  - ripgrep
+  - fd
+  - fzf
+  - jq
+  - lazygit
+  - neovim
+  - tmux
+  - node
+  - go
+  - python3
+  - tailscale
+
+brew_packages:
+  - ghostty
+  - font-jetbrains-mono-nerd-font
+
+linux_packages:
+  - build-essential
+  - unzip
+  - zsh
+
+dotnet_version: "9.0"
+
+dotnet_tools:
+  - name: EasyDotnet
+
+npm_global_packages:
+  - "@anthropic-ai/claude-code"
+
+symlinks:
+  - { src: "nvim", dest: ".config/nvim" }
+  - { src: "ghostty", dest: ".config/ghostty" }
+  - { src: "kitty", dest: ".config/kitty" }
+  - { src: "zellij", dest: ".config/zellij" }
+  - { src: "opencode", dest: ".config/opencode" }
+  - { src: "emacs", dest: ".config/emacs" }

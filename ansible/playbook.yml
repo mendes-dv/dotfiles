@@ -1,0 +1,19 @@
+---
+- name: Setup development environment
+  hosts: localhost
+  connection: local
+  become: false
+
+  vars:
+    dotfiles_dir: "{{ ansible_env.HOME }}/dotfiles"
+    config_dir: "{{ ansible_env.HOME }}/.config"
+    is_macos: "{{ ansible_os_family == 'Darwin' }}"
+    is_linux: "{{ ansible_os_family in ['Debian', 'RedHat', 'Archlinux'] }}"
+
+  roles:
+    - packages
+    - fonts
+    - shell
+    - dotfiles
+    - neovim
+    - tmux
