@@ -20,7 +20,7 @@ return {
 				"html",
 				"jsonls",
 				-- "ts_ls",
-				"basedpyright",
+				"ty",
 				"tailwindcss",
 				"lua_ls"
 			},
