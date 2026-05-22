@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Sync tmux status bar colors with macOS appearance.
+# Invoked from ~/.tmux.conf at startup, or rebind for manual refresh.
+
+set -eu
+
+if defaults read -g AppleInterfaceStyle >/dev/null 2>&1; then
+    # Dark mode
+    tmux set -g status-style "bg=#1e1e1e,fg=#bcbec4"
+    tmux set -g window-status-current-style "bg=#3c3f41,fg=#ffffff,bold"
+    tmux set -g pane-border-style "fg=#2b2b2b"
+    tmux set -g pane-active-border-style "fg=#5e81ac"
+    tmux set -g message-style "bg=#1e1e1e,fg=#bcbec4"
+else
+    # Light mode (high contrast)
+    tmux set -g status-style "bg=#ffffff,fg=#0e1116"
+    tmux set -g window-status-current-style "bg=#0349b4,fg=#ffffff,bold"
+    tmux set -g pane-border-style "fg=#88929d"
+    tmux set -g pane-active-border-style "fg=#0349b4"
+    tmux set -g message-style "bg=#ffffff,fg=#0e1116"
+fi

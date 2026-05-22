@@ -1,6 +1,6 @@
 font-family = "JetBrains Mono"
 font-thicken = false
-theme = "Catppuccin Mocha"
+theme = light:GitHub Light High Contrast,dark:Catppuccin Mocha
 macos-titlebar-style = "hidden"
 shell-integration = "zsh"
 
