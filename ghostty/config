@@ -7,6 +7,10 @@ shell-integration = "zsh"
 # Delete word
 keybind = alt+backspace=text:\x1b\x7f
 
+# Copy/paste (mirrors Omarchy's Super+C/V → Ctrl+Insert/Shift+Insert WM translation)
+keybind = ctrl+insert=copy_to_clipboard
+keybind = shift+insert=paste_from_clipboard
+
 
 window-padding-balance = true
 window-padding-x = 0
