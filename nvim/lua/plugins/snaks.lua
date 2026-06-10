@@ -28,42 +28,20 @@ return {
 		statuscolumn = { enabled = true },
 		words = { enabled = true },
 		explorer = { enabled = true },
-		image = { enabled = true },
+		image = { enabled = true, doc = { enabled = false } },
 		zen = { enabled = true },
 		picker = {
 			enabled = true,
 			sources = {
 				explorer = {
-					auto_close = true,
-					reverse = true,
+					auto_close = false,
+					hidden = true,
 					layout = {
-						preview = true,
+						preset = "sidebar",
+						preview = false,
 						layout = {
-							position = "float",
-							height = 0.8,
-							width = 0.8,
-							border = "rounded",
-							box = "horizontal",
-							{
-								box = "vertical",
-								{ win = "list", title = " Results ", title_pos = "center", border = "rounded" },
-								{
-									win = "input",
-									height = 1,
-									border = "rounded",
-									title = "{title} {live} {flags}",
-									title_pos = "center",
-								},
-							},
-							{
-								win = "preview",
-								title = "{preview:Preview}",
-								width = 0.45,
-								border = "rounded",
-								title_pos = "center",
-							},
-							-- if you turned preview=true above, also add:
-							-- { win = "preview", width = 0, border = "left" },
+							position = "right",
+							width = 40,
 						},
 					},
 				},
@@ -105,6 +83,7 @@ return {
       desc = "Buffers"
 		},
     { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
+    { "<leader>,", function() Snacks.picker.buffers() end, desc = "Buffers" },
     { "<leader>fp", function() Snacks.picker.projects() end, desc = "Projects" },
 		{
 			"<leader>fs",

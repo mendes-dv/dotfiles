@@ -26,10 +26,10 @@ map("n", "<leader>p", "<CMD>split<CR>")
 -- map("n", "<C-j>", "<C-w>j")
 
 -- Resize Windows
-map("n", "<C-Left>", "<C-w><")
-map("n", "<C-Right>", "<C-w>>")
-map("n", "<C-Up>", "<C-w>+")
-map("n", "<C-Down>", "<C-w>-")
+map("n", "<C-Left>", "<CMD>vertical resize -2<CR>")
+map("n", "<C-Right>", "<CMD>vertical resize +2<CR>")
+map("n", "<C-Up>", "<CMD>resize +2<CR>")
+map("n", "<C-Down>", "<CMD>resize -2<CR>")
 
 -- copy to system clipboard
 map("v", "<leader>y", '"+y')
