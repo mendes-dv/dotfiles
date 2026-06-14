@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+current=$(tmux display-message -p "#{session_name}")
+
+session=$(tmux list-sessions -F "#{session_name}: #{session_windows} windows (created #{t:session_created})" 2>/dev/null \
+    | grep -v "^${current}:" \
+    | fzf --reverse --prompt="Switch session: " \
+    | cut -d: -f1)
+
+if [[ -n $session ]]; then
+    tmux switch-client -t "$session"
+fi
